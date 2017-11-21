@@ -16,7 +16,7 @@
 <li>Push committed changes onto online repo: git push</li>
 </ol>
 
-<p><h2><strong>To remove files <it>only</it> on the online repo:</strong></h1></p>
+<p><h2><strong>To remove files <em>only</em> on the online repo:</strong></h1></p>
 <ol>
 <li>Sync local with online repo: git pull -a</li>
 <li>Add files: git add .</li>
