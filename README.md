@@ -33,3 +33,17 @@
 <li>Commit change: git commit -m "remove [file name]"</li>
 <li>Push changes: git push</li>
 </ol>
+
+<p><h2><strong>If merging does occur:</strong></h1></p>
+<p>
+If merging does occur and the terminal "freezes" (i.e. it won't let you type anything), follow these steps to merge successfully. The terminal window will look very odd and will display this message:
+"please enter a commit message to explain why this merge is necessary,especially if it merges an updated upstream into a topic branch."
+</p>
+
+<ol>
+<li>Let the terminal know you want to insert a merge message: Press "i"</li>
+<li>Write your merge message</li>
+<li>Exit the insertion: Press "Esc"</li>
+<li>Write and quit: Type ":wq" (no quotations)</li>
+<li>Press Enter</li>
+</ol>
