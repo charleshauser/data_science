@@ -2,7 +2,7 @@
 
 <p><h2><strong>To clone forked or new repository:</strong></h1></p>
 <p>
-*You have to be on the desired directory within your file system in order to clone the repo where you want it. You can do this using the cd command (change directory) on your terminal (on Mac) or Git Bash (on Windows) to switch to a desired  directory if it is  immediately within or “before” the directory you are working on*
+*The command below clones the forked or new online repository directly on the directory specified by the pwd command output. To change to a desired directory where you want to clone the repository, use the cd command (change directory) on your terminal (on Mac) or Git Bash (on Windows) to switch to a desired  directory if it is immediately above or below in the hierarchy of the directory you are working on. Otherwise, you need to specify the full path of the directory you want to "cd" to.*
 </p>
 
 <p>git clone [URL]</p>
