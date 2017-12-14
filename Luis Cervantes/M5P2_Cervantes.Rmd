@@ -1,0 +1,95 @@
+Programming Assignment 2 - Reproducible Research
+====================================================
+#1. Synopsis
+Severe weather events such as storms can have a detrimental effect not only on the natural environment where the event occurred, but also on the overall health and economy of the community that lives near the area. The aim of this study is to do a general survey of the data on storms available through the U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database. This study will determine the types of events that are the most harmful with respect to population health, as well as the types of events that have the greatest economic consequences.
+
+#2. Data Processing
+The data was loaded into R.
+```{r,echo=TRUE, cache=TRUE}
+URL <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
+download.file(URL,"E:/R Working Directory/stormdata.csv")
+storm <- read.csv("stormdata.csv")
+colnames(storm)
+
+```
+
+#3. Results
+##3a. Load Libraries
+For this analysis, the lattice R package will be used.
+```{r, echo=TRUE}
+library(lattice)
+```
+
+
+##3b. Cleaning Data
+Data was then cleaned by extracting relevant columns. Two dataframes were created for analyzing event types with respect to their impact on population health and with respect to their impact on economy. The data frames are named storm1 and storm2, respectively.
+```{r, echo=TRUE}
+storm1 <- storm[c("EVTYPE","FATALITIES","INJURIES")]
+
+storm2 <- storm[c("EVTYPE","PROPDMG","PROPDMGEXP","CROPDMG","CROPDMGEXP")]
+```
+
+
+##3c. Analysis of Event Types with Most Harm on Public Health
+First, an overview for the relevant variables that determine the overall effects on public health, such as fatalities and injuries are portrayed in an overview.
+```{r, echo=TRUE}
+pairs(storm1, main= "Overview on Effects on Population Health")
+```
+
+
+In order to fully determine which event type has the greatest effect on public health, the event types will be ranked in order of the greatest number of fatalities. The event types will then be ranked again based on the number of injuries in case of any ties.
+```{r, echo=TRUE}
+fatalities <- as.numeric(tapply(storm1$FATALITIES,storm1$EVTYPE,sum))
+injuries <- as.numeric(tapply(storm1$INJURIES,storm1$EVTYPE,sum))
+pubhealth <- data.frame(unique(levels(storm1$EVTYPE)),fatalities,injuries)
+pubhealth <- pubhealth[order(pubhealth$injuries, decreasing = TRUE),]
+pubhealth <- pubhealth[order(pubhealth$fatalities, decreasing = TRUE),]
+colnames(pubhealth) <- c("EventType", "Fatalities","Injuries")
+pubhealth$Fatandinj <- pubhealth$Fatalities + pubhealth$Injuries
+pubhealth <- pubhealth[order(pubhealth$Fatandinj, decreasing = TRUE),]
+plotdata <- pubhealth[1:10,]
+```
+
+
+The ten most fatal event types will then be plotted based on the total number of fatalities and injuries.
+```{r,echo=TRUE}
+barchart(plotdata$Fatandinj ~ plotdata$EventType,main="Ten Most Harmful Events For US Population Health", xlab = "Event Type",ylab = "Fatalities and Injuries",scales = list(x = list(rot = 45)))
+```
+
+##3d. Analysis of Event Types with Most Economic Damage
+The analysis will start by creating a column in storm2 that summarizes the entire damage in USD adding damage from crops and from properties.
+```{r, echo=TRUE}
+storm2$PROPDMG[storm2$PROPDMGEXP %in% "1"] <- storm2$PROPDMG[storm$PROPDMGEXP %in% "1"]* 10
+storm2$PROPDMG[storm2$PROPDMGEXP %in% c("2","h","H")] <- storm2$PROPDMG[storm$PROPDMGEXP %in% c("2","h","H")]* 100
+storm2$PROPDMG[storm2$PROPDMGEXP %in% c("3","K")] <- storm2$PROPDMG[storm$PROPDMGEXP %in% c("3","K")]* 1000
+storm2$PROPDMG[storm2$PROPDMGEXP %in% "4"] <- storm2$PROPDMG[storm2$PROPDMGEXP %in% "4"]* 10^4
+storm2$PROPDMG[storm2$PROPDMGEXP %in% "5"] <- storm2$PROPDMG[storm2$PROPDMGEXP %in% "5"]* 10^5
+storm2$PROPDMG[storm2$PROPDMGEXP %in% c("6","m","M")] <- storm2$PROPDMG[storm$PROPDMGEXP %in% c("6","m","M")]* 10^6
+storm2$PROPDMG[storm2$PROPDMGEXP %in% "7"] <- storm2$PROPDMG[storm2$PROPDMGEXP %in% "7"]* 10^7
+storm2$PROPDMG[storm2$PROPDMGEXP %in% "8"] <- storm2$PROPDMG[storm2$PROPDMGEXP %in% "8"]* 10^8
+storm2$PROPDMG[storm2$PROPDMGEXP %in% "B"] <- storm2$PROPDMG[storm2$PROPDMGEXP %in% "B"]* 10^9
+
+storm2$CROPDMG[storm2$CROPDMGEXP %in% "2"] <- storm2$CROPDMG[storm2$CROPDMGEXP %in% "2"]* 10^2
+storm2$CROPDMG[storm2$CROPDMGEXP %in% "B"] <- storm2$CROPDMG[storm2$CROPDMGEXP %in% "B"]* 10^9
+storm2$CROPDMG[storm2$CROPDMGEXP %in% c("k","K")] <- storm2$CROPDMG[storm2$CROPDMGEXP %in% c("k","K")]* 10^3
+storm2$CROPDMG[storm2$CROPDMGEXP %in% c("m","M")] <- storm2$CROPDMG[storm2$CROPDMGEXP %in% c("m","M")]* 10^6
+
+storm2$damage <- storm2$PROPDMG + storm2$CROPDMG
+
+
+totaldamage <- tapply(storm2$damage,storm2$EVTYPE,sum)
+plotdata2 <- data.frame(unique(storm2$EVTYPE)[order(unique(storm2$EVTYPE))],as.numeric(totaldamage))
+colnames(plotdata2) <- c("EventType","Damage")
+plotdata2 <- plotdata2[order(plotdata2$Damage,decreasing=TRUE),]
+
+plotdata2 <- plotdata2[1:10,]
+```
+
+The plot depicts the top 10 most economically damaging event types.
+```{r,echo=TRUE}
+barchart(plotdata2$Damage ~ plotdata2$EventType,main="Ten Most Damaging Events For US Population Economy", xlab = "Event Type",ylab = "Damage",scales = list(x = list(rot = 45)))
+```
+
+
+#4. Conclusion
+The above graphs indicate that the most harmful event type for the US population health is tornadoes, while the most economically damaging event type in the US is floods.
